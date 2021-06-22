@@ -34,6 +34,7 @@ def show_category(request, category_name_slug):
 	# Create a context dictionary which we can pass
 	# to the template rendering engine.
 	context_dict = {}
+	
 	try:
 		# Can we find a category name slug with the given name?
 		# If we can't, the .get() method raises a DoesNotExist exception.
@@ -72,10 +73,12 @@ def add_category(request):
 			# Now that the category is saved, we could confirm this.
 			# For now, just redirect the user back to the index view.
 			return redirect('/rango/')
+		
 		else:
 			# The supplied form contained errors -
 			# just print them to the terminal.
 			print(form.errors)
+	
 	# Will handle the bad form, new form, or no form supplied cases.
 	# Render the form with error messages (if any).
 	return render(request, 'rango/add_category.html', {'form': form})
@@ -101,9 +104,8 @@ def add_page(request, category_name_slug):
 				page.category = category
 				page.views = 0
 				page.save()
-				return redirect(reverse('rango:show_category',
-				kwargs={'category_name_slug':
-				category_name_slug}))
+				return redirect(reverse('rango:show_category', kwargs={'category_name_slug': category_name_slug}))
+		
 		else:
 			print(form.errors)
 		
@@ -167,11 +169,7 @@ def register(request):
 		profile_form = UserProfileForm()
 
 	# Render the template depending on the context.
-	return render(request,
-				'rango/register.html',
-			context = {'user_form': user_form,
-			'profile_form': profile_form,
-			'registered': registered})
+	return render(request, 'rango/register.html', context = {'user_form': user_form, 'profile_form': profile_form, 'registered': registered})
 
 def user_login(request):
 	# If the request is a HTTP POST, try to pull out the relevant information.
@@ -206,6 +204,7 @@ def user_login(request):
 			# Bad login details were provided. So we can't log the user in.
 			print(f"Invalid login details: {username}, {password}")
 			return HttpResponse("Invalid login details supplied.")
+
 	# The request is not a HTTP POST, so display the login form.
 	# This scenario would most likely be a HTTP GET.
 	else:
@@ -231,23 +230,24 @@ def get_server_side_cookie(request, cookie, default_val=None):
 	val = request.session.get(cookie)
 	if not val:
 		val = default_val
+
 	return val
 
 # Updated the function definition
 def visitor_cookie_handler(request):
 	visits = int(get_server_side_cookie(request, 'visits', '1'))
-	last_visit_cookie = get_server_side_cookie(request,
-			'last_visit',
-			str(datetime.now()))
-	last_visit_time = datetime.strptime(last_visit_cookie[:-7],
-			'%Y-%m-%d %H:%M:%S')
+	last_visit_cookie = get_server_side_cookie(request, 'last_visit', str(datetime.now()))
+	last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+	
 	# If it's been more than a day since the last visit...
 	if (datetime.now() - last_visit_time).days > 0:
 		visits = visits + 1
 		# Update the last visit cookie now that we have updated the count
 		request.session['last_visit'] = str(datetime.now())
+	
 	else:
 		# Set the last visit cookie
 		request.session['last_visit'] = last_visit_cookie
+
 	# Update/set the visits cookie
 	request.session['visits'] = visits
